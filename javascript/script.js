@@ -13,31 +13,19 @@ const Modal = {
     }
 }
 
-const Transaction = {
-    all: [
-        {
-            description: 'Luz',
-            amount: -50001,
-            date: '23/01/2021',
-        },
-        {
-            description: 'Website',
-            amount: 500012,
-            date: '23/01/2021',
-        },
-        {
-            description: 'Internet',
-            amount: -20000,
-            date: '23/01/2021',
-        },
-        {
-            description: 'Dev App',
-            amount: 200000,
-            date: '23/01/2021',
-        },
-    ],
+const Storage = {
+    get() {
+        return JSON.parse(localStorage.getItem("dev.finances:transactions")) || []
+    },
+    set(transacations) {
+        localStorage.setItem("dev.finances:transactions", JSON.stringify(transacations))
+    }
+}
 
-    add(transaction){
+const Transaction = {
+    all: Storage.get(),
+
+    add(transaction) {
         Transaction.all.push(transaction)
 
         App.reload()
@@ -53,7 +41,7 @@ const Transaction = {
         let income = 0
 
         Transaction.all.forEach(transaction => {
-            if( transaction.amount > 0) {
+            if (transaction.amount > 0) {
                 income += transaction.amount;
             }
         })
@@ -65,7 +53,7 @@ const Transaction = {
         let expense = 0
 
         Transaction.all.forEach(transaction => {
-            if( transaction.amount < 0) {
+            if (transaction.amount < 0) {
                 expense += transaction.amount;
             }
         })
@@ -100,23 +88,23 @@ const DOM = {
                         <td class="${CSSclass}">${amount}</td>
                         <td class="date">${transaction.date}</td>
                         <td>
-                            <img onclick="Transaction.remove(${index}}" 
+                            <img onclick="Transaction.remove(${index})" 
                             src="./assets/minus.svg" alt="Remover transação">
                         </td>
                     `
-                return html
+        return html
     },
 
     updateBalance() {
         document
-        .getElementById('incomeDisplay')
-        .innerHTML = Utils.formatCurrency(Transaction.incomes())
+            .getElementById('incomeDisplay')
+            .innerHTML = Utils.formatCurrency(Transaction.incomes())
         document
-        .getElementById('expenseDisplay')
-        .innerHTML = Utils.formatCurrency(Transaction.expenses())
+            .getElementById('expenseDisplay')
+            .innerHTML = Utils.formatCurrency(Transaction.expenses())
         document
-        .getElementById('totalDisplay')
-        .innerHTML = Utils.formatCurrency(Transaction.total())
+            .getElementById('totalDisplay')
+            .innerHTML = Utils.formatCurrency(Transaction.total())
     },
 
     clearTransactions() {
@@ -134,7 +122,7 @@ const Utils = {
     formatDate(date) {
         const splittedDate = date.split("-")
         return `${splittedDate[2]}/${splittedDate[1]}/${splittedDate[0]}`
-    }, 
+    },
 
     formatCurrency(value) {
         const signal = Number(value) < 0 ? "-" : ""
@@ -143,7 +131,7 @@ const Utils = {
 
         value = Number(value) / 100
 
-        value = value.toLocaleString("pt-BR", { 
+        value = value.toLocaleString("pt-BR", {
             style: "currency",
             currency: "BRL"
         })
@@ -167,11 +155,11 @@ const Form = {
 
     validateFields() {
         const { description, amount, date } = Form.getValues()
-            if (description.trim() === "" ||
-                amount.trim() === "" ||
-                date.trim() === "") {
-                    throw new Error("Por favor, preencha todos os campos")
-                }
+        if (description.trim() === "" ||
+            amount.trim() === "" ||
+            date.trim() === "") {
+            throw new Error("Por favor, preencha todos os campos")
+        }
     },
 
     formatValues() {
@@ -189,9 +177,9 @@ const Form = {
     },
 
     clearFields() {
-        Form.description.value =""
-        Form.amount.value =""
-        Form.date.value =""
+        Form.description.value = ""
+        Form.amount.value = ""
+        Form.date.value = ""
     },
 
     submit(event) {
@@ -209,21 +197,20 @@ const Form = {
     }
 }
 
+
 const App = {
     init() {
 
-        Transaction.all.forEach((transaction, index) => {
-            DOM.addTransaction(transaction, index)
-        })
-        
+        Transaction.all.forEach(DOM.addTransaction)
+
         DOM.updateBalance()
 
+        Storage.set(Transaction.all)
     },
 
     reload() {
         DOM.clearTransactions()
         App.init()
-
     },
 }
 
