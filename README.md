@@ -1,1 +1,2 @@
-Projeto de controle de receitas e dispesas com HTML/CSS e JavaScript.
+Projeto para controle financeiro com despesas e receitas.
+Conteúdo oferecido pela Rocketseat
